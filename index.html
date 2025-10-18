@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sohbet Odası</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Inter',sans-serif;background:linear-gradient(135deg,#121212,#1a1a1a);display:flex;justify-content:center;align-items:center;height:100vh;color:#eee;}
+#login-container,#chat-container{width:50vw;max-width:700px;background:#1f1f1f;border-radius:20px;box-shadow:0 0 40px rgba(0,0,0,0.8);padding:20px;display:flex;flex-direction:column;gap:20px;}
+#login-container{height:250px;justify-content:center;align-items:center;}
+#login-container input{width:70%;padding:12px;border:none;border-radius:10px;background:#2a2a2a;color:#eee;font-size:16px;outline:none;margin-bottom:10px;}
+#login-container button{padding:12px 25px;border:none;border-radius:10px;background:linear-gradient(135deg,#4caf50,#66bb6a);color:white;cursor:pointer;transition:0.3s;font-size:16px;}
+#login-container button:hover{background:linear-gradient(135deg,#45a049,#5cb85c);}
+#chat-container{height:70vh;display:none;}
+#chat-header{padding:15px;background:#2a2a2a;font-size:20px;font-weight:600;text-align:center;border-bottom:1px solid #333;letter-spacing:1px;}
+#messages{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth;}
+.message{display:flex;align-items:flex-start;gap:10px;opacity:0;transform:translateY(20px);animation:fadeSlide 0.4s forwards;}
+.message-avatar{width:40px;height:40px;background:#4caf50;border-radius:50%;display:flex;justify-content:center;align-items:center;font-weight:600;color:white;flex-shrink:0;}
+.message-content{background:linear-gradient(145deg,#3a3a3a,#2a2a2a);padding:10px 15px;border-radius:15px;max-width:70%;box-shadow:0 4px 12px rgba(0,0,0,0.3);word-wrap:break-word;}
+.message-username{font-weight:700;margin-bottom:5px;display:block;color:#ffffff;text-shadow:0 0 3px rgba(0,0,0,0.6);font-size:15px;}
+@keyframes fadeSlide{to{opacity:1; transform:translateY(0);}}
+#input-container{display:flex;border-top:1px solid #333;}
+#msg{flex:1;padding:12px;border:none;outline:none;font-size:14px;background:#2a2a2a;color:#eee;transition:0.2s;}
+#msg:focus{background:#3a3a3a;}
+#send{background:linear-gradient(135deg,#4caf50,#66bb6a);border:none;color:white;padding:0 25px;cursor:pointer;transition:0.3s;}
+#send:hover{background:linear-gradient(135deg,#45a049,#5cb85c);}
+</style>
+</head>
+<body>
+
+<div id="login-container">
+  <input type="text" id="username-input" placeholder="Adını gir">
+  <input type="password" id="site-password" placeholder="Site şifresi">
+  <button id="join-btn">Katıl</button>
+</div>
+
+<div id="chat-container">
+  <div id="chat-header">Sohbet Odası - <span id="online-count">0</span> online</div>
+  <div id="messages"></div>
+  <div id="input-container">
+    <input type="text" id="msg" placeholder="Mesajın">
+    <button id="send">Gönder</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD3nTrl-tvOhxzKZmWr7y9CgEoUFStl5hU",
+  authDomain: "void-3f552.firebaseapp.com",
+  databaseURL: "https://void-3f552-default-rtdb.firebaseio.com",
+  projectId: "void-3f552",
+  storageBucket: "void-3f552.firebasestorage.app",
+  messagingSenderId: "596552945131",
+  appId: "1:596552945131:web:b21767472bc2ffe87b9dae",
+  measurementId: "G-5821FQ4S85"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database().ref("messages");
+const onlineRef = firebase.database().ref("onlineUsers");
+
+let username = "";
+const sitePassword = "helele";
+
+const loginContainer = document.getElementById("login-container");
+const chatContainer = document.getElementById("chat-container");
+const usernameInput = document.getElementById("username-input");
+const passwordInput = document.getElementById("site-password");
+const joinBtn = document.getElementById("join-btn");
+const messagesEl = document.getElementById("messages");
+const msgEl = document.getElementById("msg");
+const sendBtn = document.getElementById("send");
+const onlineCountEl = document.getElementById("online-count");
+
+let userRef = null;
+
+joinBtn.onclick = () => {
+  const name = usernameInput.value.trim();
+  const pass = passwordInput.value.trim();
+  if(!name || !pass){alert("Adını ve site şifresini gir!"); return;}
+  if(pass !== sitePassword){alert("Şifre yanlış!"); return;}
+  username = name;
+  loginContainer.style.display = "none";
+  chatContainer.style.display = "flex";
+  msgEl.focus();
+
+  // Online kullanıcıyı ekle
+  userRef = onlineRef.push();
+  userRef.set(username);
+  userRef.onDisconnect().remove();
+}
+
+// Mesaj gönder
+sendBtn.onclick = sendMessage;
+msgEl.addEventListener("keydown",(e)=>{if(e.key==="Enter") sendMessage();});
+
+function sendMessage(){
+  const message = msgEl.value.trim();
+  if(message){
+    db.push().set({username,message});
+    msgEl.value="";
+  }
+}
+
+// Mesajları dinle
+db.on("child_added", (snap)=>{
+  const data = snap.val();
+  const msgDiv = document.createElement("div");
+  msgDiv.classList.add("message");
+  const avatar = data.username.charAt(0).toUpperCase();
+  msgDiv.innerHTML = `<div class="message-avatar">${avatar}</div>
+  <div class="message-content"><span class="message-username">${data.username}</span>${data.message}</div>`;
+  messagesEl.appendChild(msgDiv);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+});
+
+// Online kullanıcı sayısını güncelle
+onlineRef.on("value", snap => {
+  const count = snap.numChildren();
+  onlineCountEl.textContent = count;
+});
+</script>
+
+</body>
+</html>
