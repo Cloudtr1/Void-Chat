@@ -6,25 +6,172 @@
 <title>Sohbet Odası</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-body{margin:0;font-family:'Inter',sans-serif;background:linear-gradient(135deg,#121212,#1a1a1a);display:flex;justify-content:center;align-items:center;height:100vh;color:#eee;}
-#login-container,#chat-container{width:50vw;max-width:700px;background:#1f1f1f;border-radius:20px;box-shadow:0 0 40px rgba(0,0,0,0.8);padding:20px;display:flex;flex-direction:column;gap:20px;}
-#login-container{height:250px;justify-content:center;align-items:center;}
-#login-container input{width:70%;padding:12px;border:none;border-radius:10px;background:#2a2a2a;color:#eee;font-size:16px;outline:none;margin-bottom:10px;}
-#login-container button{padding:12px 25px;border:none;border-radius:10px;background:linear-gradient(135deg,#4caf50,#66bb6a);color:white;cursor:pointer;transition:0.3s;font-size:16px;}
-#login-container button:hover{background:linear-gradient(135deg,#45a049,#5cb85c);}
-#chat-container{height:70vh;display:none;}
-#chat-header{padding:15px;background:#2a2a2a;font-size:20px;font-weight:600;text-align:center;border-bottom:1px solid #333;letter-spacing:1px;}
-#messages{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth;}
-.message{display:flex;align-items:flex-start;gap:10px;opacity:0;transform:translateY(20px);animation:fadeSlide 0.4s forwards;}
-.message-avatar{width:40px;height:40px;background:#4caf50;border-radius:50%;display:flex;justify-content:center;align-items:center;font-weight:600;color:white;flex-shrink:0;}
-.message-content{background:linear-gradient(145deg,#3a3a3a,#2a2a2a);padding:10px 15px;border-radius:15px;max-width:70%;box-shadow:0 4px 12px rgba(0,0,0,0.3);word-wrap:break-word;}
-.message-username{font-weight:700;margin-bottom:5px;display:block;color:#ffffff;text-shadow:0 0 3px rgba(0,0,0,0.6);font-size:15px;}
-@keyframes fadeSlide{to{opacity:1; transform:translateY(0);}}
-#input-container{display:flex;border-top:1px solid #333;}
-#msg{flex:1;padding:12px;border:none;outline:none;font-size:14px;background:#2a2a2a;color:#eee;transition:0.2s;}
-#msg:focus{background:#3a3a3a;}
-#send{background:linear-gradient(135deg,#4caf50,#66bb6a);border:none;color:white;padding:0 25px;cursor:pointer;transition:0.3s;}
-#send:hover{background:linear-gradient(135deg,#45a049,#5cb85c);}
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:linear-gradient(135deg,#121212,#1a1a1a);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  color:#eee;
+}
+
+/* Containerlar */
+#login-container,#chat-container{
+  width:90%;
+  max-width:700px;
+  background:#1f1f1f;
+  border-radius:25px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.8);
+  padding:25px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  transition:0.3s;
+}
+#login-container{height:auto; justify-content:center; align-items:center;}
+
+/* Inputlar */
+#login-container input, #msg{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:15px;
+  background:#2a2a2a;
+  color:#eee;
+  font-size:16px;
+  outline:none;
+  transition:0.3s;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+  margin-bottom:10px;
+}
+#login-container input:focus, #msg:focus{
+  background:#3a3a3a;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.8);
+}
+
+/* Buttonlar */
+#login-container button,#send{
+  padding:12px 25px;
+  border:none;
+  border-radius:15px;
+  background:linear-gradient(135deg,#4caf50,#66bb6a);
+  color:white;
+  cursor:pointer;
+  transition:0.4s;
+  font-size:16px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+}
+#login-container button:hover,#send:hover{
+  background:linear-gradient(135deg,#45a049,#5cb85c);
+  transform:translateY(-2px);
+  box-shadow:0 6px 15px rgba(0,0,0,0.5);
+}
+
+/* Chat container */
+#chat-container{height:70vh; display:none; flex-direction:column;}
+#chat-header{
+  padding:15px;
+  background:#2a2a2a;
+  font-size:20px;
+  font-weight:600;
+  text-align:center;
+  border-bottom:1px solid #333;
+  letter-spacing:1px;
+  border-radius:15px 15px 0 0;
+  box-shadow: inset 0 -2px 5px rgba(0,0,0,0.5);
+}
+
+/* Mesaj alanı */
+#messages{
+  flex:1;
+  padding:15px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  scroll-behavior:smooth;
+}
+.message{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  opacity:0;
+  transform:translateY(20px);
+  animation:fadeSlide 0.4s forwards;
+}
+.message-avatar{
+  width:45px;
+  height:45px;
+  background:#4caf50;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:600;
+  color:white;
+  flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,0.5);
+}
+.message-content{
+  background:linear-gradient(145deg,#3a3a3a,#2a2a2a);
+  padding:12px 18px;
+  border-radius:20px;
+  max-width:75%;
+  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+  word-wrap:break-word;
+  transition:0.3s;
+}
+.message-content:hover{
+  background:linear-gradient(145deg,#4a4a4a,#2f2f2f);
+  transform:scale(1.02);
+}
+
+/* Mesaj kullanıcı adı */
+.message-username{
+  font-weight:700;
+  margin-bottom:5px;
+  display:block;
+  color:#ffffff;
+  text-shadow:0 0 3px rgba(0,0,0,0.6);
+  font-size:15px;
+}
+
+/* Input container */
+#input-container{
+  display:flex;
+  border-top:1px solid #333;
+  gap:10px;
+}
+#msg{flex:1;}
+#send{flex-shrink:0;}
+
+/* Animasyon */
+@keyframes fadeSlide{
+  to{opacity:1; transform:translateY(0);}
+}
+
+/* Mobile uyumlu */
+@media(max-width:768px){
+  #login-container,#chat-container{
+    width:95%;
+    padding:20px;
+  }
+  #login-container input, #msg{
+    font-size:15px;
+    padding:12px;
+  }
+  #login-container button,#send{
+    font-size:15px;
+    padding:10px 20px;
+  }
+  .message-avatar{
+    width:35px;
+    height:35px;
+  }
+  .message-content{max-width:80%;}
+}
 </style>
 </head>
 <body>
